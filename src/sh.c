@@ -1,4 +1,4 @@
-#include "lsh.h"
+#include "sh.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,31 +20,31 @@
  */
 char* builtin_str[] = {"cd", "help", "exit"};
 
-int (*builtin_func[])(char**) = {&lsh_cd, &lsh_help, &lsh_exit};
+int (*builtin_func[])(char**) = {&sh_cd, &sh_help, &sh_exit};
 
-int lsh_num_builtins() { return sizeof(builtin_str) / sizeof(char*); }
+int sh_num_builtins() { return sizeof(builtin_str) / sizeof(char*); }
 
 /*
   Builtin function implementations.
 */
 
-int lsh_cd(char** args) {
+int sh_cd(char** args) {
     // Use HOME if arg is "~", otherwise use the argument provided
     char* path = (args[1] == NULL || strcmp(args[1], "~") == 0) ? getenv("HOME")
                                                                 : args[1];
     if (chdir(path) != 0) {
-        perror("lsh");
+        perror("sh");
     }
     return 1;
 }
 
-int lsh_help(char** args) {
+int sh_help(char** args) {
     int i;
     printf("Fenric's simple shell\n");
     printf("Type program names and arguments, and hit enter.\n");
     printf("The following are built in:\n");
 
-    for (i = 0; i < lsh_num_builtins(); i++) {
+    for (i = 0; i < sh_num_builtins(); i++) {
         printf("  %s\n", builtin_str[i]);
     }
 
@@ -52,7 +52,7 @@ int lsh_help(char** args) {
 }
 
 void print_space(char* fname){
-    int char_limit = 20;
+    int char_limit = 28;
     int sizeoff_name = strlen(fname);
     printf(fname);
     // printf("%d", sizeoff_name);
@@ -68,7 +68,7 @@ void print_space(char* fname){
 }
 
 
-int lsh_exit(char** args) { return 0; }
+int sh_exit(char** args) { return 0; }
 
 int auto_complete(int count, int key) {
     if (root == NULL) return 0;
@@ -184,7 +184,7 @@ int auto_complete(int count, int key) {
     return 0;
 }
 
-int lsh_launch(char** args) {
+int sh_launch(char** args) {
     pid_t pid;
     int status;
 
@@ -192,12 +192,12 @@ int lsh_launch(char** args) {
     if (pid == 0) {
         // Child process
         if (execvp(args[0], args) == -1) {
-            perror("lsh");
+            perror("sh");
         }
         exit(EXIT_FAILURE);
     } else if (pid < 0) {
         // Error forking
-        perror("lsh");
+        perror("sh");
     } else {
         // Parent process
         do {
@@ -208,7 +208,7 @@ int lsh_launch(char** args) {
     return 1;
 }
 
-int lsh_execute(char** args) {
+int sh_execute(char** args) {
     int i;
 
     if (args[0] == NULL) {
@@ -216,45 +216,45 @@ int lsh_execute(char** args) {
         return 1;
     }
 
-    for (i = 0; i < lsh_num_builtins(); i++) {
+    for (i = 0; i < sh_num_builtins(); i++) {
         if (strcmp(args[0], builtin_str[i]) == 0) {
             return (*builtin_func[i])(args);
         }
     }
 
-    return lsh_launch(args);
+    return sh_launch(args);
 }
 
-#define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
+#define sh_TOK_BUFSIZE 64
+#define sh_TOK_DELIM " \t\r\n\a"
 
-char** lsh_split_line(char* line) {
-    int bufsize = LSH_TOK_BUFSIZE, position = 0;
+char** sh_split_line(char* line) {
+    int bufsize = sh_TOK_BUFSIZE, position = 0;
     char** tokens = malloc(bufsize * sizeof(char*));
     char *token, **tokens_backup;
 
     if (!tokens) {
-        fprintf(stderr, "lsh: allocation error\n");
+        fprintf(stderr, "sh: allocation error\n");
         exit(EXIT_FAILURE);
     }
 
-    token = strtok(line, LSH_TOK_DELIM);
+    token = strtok(line, sh_TOK_DELIM);
     while (token != NULL) {
         tokens[position] = token;
         position++;
 
         if (position >= bufsize) {
-            bufsize += LSH_TOK_BUFSIZE;
+            bufsize += sh_TOK_BUFSIZE;
             tokens_backup = tokens;
             tokens = realloc(tokens, bufsize * sizeof(char*));
             if (!tokens) {
                 free(tokens_backup);
-                fprintf(stderr, "lsh: allocation error\n");
+                fprintf(stderr, "sh: allocation error\n");
                 exit(EXIT_FAILURE);
             }
         }
 
-        token = strtok(NULL, LSH_TOK_DELIM);
+        token = strtok(NULL, sh_TOK_DELIM);
     }
     tokens[position] = NULL;
     return tokens;
@@ -265,7 +265,7 @@ char** lsh_split_line(char* line) {
  */
 char cwd[PATH_MAX];
 char prompt[PATH_MAX + 20];
-void lsh_loop(void) {
+void sh_loop(void) {
     rl_initialize();
 
     char** args;
@@ -286,9 +286,9 @@ void lsh_loop(void) {
         if (strlen(buf) > 0) {
             add_history(buf);
         }
-        args = lsh_split_line(buf);
+        args = sh_split_line(buf);
 
-        status = lsh_execute(args);
+        status = sh_execute(args);
 
         free(buf);
         free(args);

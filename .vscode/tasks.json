@@ -1,7 +1,7 @@
 {
     "tasks": [
        {
-    "label": "build lsh",
+    "label": "build sh",
     "type": "shell",
     "command": "make",
     "group": {

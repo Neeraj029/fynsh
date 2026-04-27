@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "lsh.h"
+#include "sh.h"
 #include "trie.h"
 
 int main(int argc, char** argv) {
@@ -18,9 +18,9 @@ int main(int argc, char** argv) {
     char histpath[1024];
     const char* home = getenv("HOME");
     if (home)
-        snprintf(histpath, sizeof(histpath), "%s/.lsh_history", home);
+        snprintf(histpath, sizeof(histpath), "%s/.sh_history", home);
     else
-        snprintf(histpath, sizeof(histpath), ".lsh_history");
+        snprintf(histpath, sizeof(histpath), ".sh_history");
 
     if (read_history(histpath) == -1) {
         FILE* histfile = fopen(histpath, "w");
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    lsh_loop();
+    sh_loop();
 
     write_history(histpath);
 

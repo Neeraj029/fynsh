@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -g -Wall
 LIBS = -lreadline
-SRC = src/main.c src/lsh.c src/trie.c
-OUT = lsh
+SRC = src/main.c src/sh.c src/trie.c
+OUT = fynsh
 
 all: $(OUT)
 
