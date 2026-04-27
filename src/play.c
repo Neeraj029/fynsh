@@ -4,24 +4,25 @@
 #include <string.h>
 
 int main() {
+    int char_limit = 18;
+    int colms = 3;
+    char test[] = "hi";
+    int sizeoff_name = sizeof(test)/sizeof(char) - 1;
+    printf(test);
+    if(sizeoff_name<=10){
+        for(int i = 0;i<(char_limit - sizeoff_name);i++){
+            putchar(' ');
+        }
+    }
+    printf("did it work \n");
     // initializing string
-    char str[] = "GeeksforGeeksIsShit";
-
-    // character to be searched
-    char chr = 'k';
-
-    // Storing pointer returned by
-    char* ptr = strrchr(str, chr);
-
-    // getting the position of the character
-    if (ptr) {
-        printf("Last occurrence of %c in %s is at index %d", chr, str,
-               ptr - str);
-        printf("%s", ptr + 1);
+    char *fnames[] = {"fynsh", "d3d10_1core.dll", "dafDockingProvider.dll","sdfasdfff","dsfasd","sdfxx"};
+    for(int i = 0;i<sizeof(fnames)/sizeof(fnames[0]);i++){
+        printf("%s \t", fnames[i]);
+        if((i+1)%colms == 0){
+            printf("\n");
+        }
     }
-    // condition for character not present
-    else {
-        printf("%c is not present in %s ", chr, str);
-    }
+
     return 0;
 }

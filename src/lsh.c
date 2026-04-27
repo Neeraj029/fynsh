@@ -40,7 +40,7 @@ int lsh_cd(char** args) {
 
 int lsh_help(char** args) {
     int i;
-    printf("Fenric's custom shell\n");
+    printf("Fenric's simple shell\n");
     printf("Type program names and arguments, and hit enter.\n");
     printf("The following are built in:\n");
 
@@ -50,6 +50,23 @@ int lsh_help(char** args) {
 
     return 1;
 }
+
+void print_space(char* fname){
+    int char_limit = 20;
+    int sizeoff_name = strlen(fname);
+    printf(fname);
+    // printf("%d", sizeoff_name);
+    if(sizeoff_name<=char_limit){
+        // printf("-%d", char_limit - sizeoff_name);
+        for(int i = 0;i<(char_limit - sizeoff_name);i++){
+            putchar(' ');
+        }
+    }else{
+        printf("\t");
+    }
+
+}
+
 
 int lsh_exit(char** args) { return 0; }
 
@@ -74,7 +91,7 @@ int auto_complete(int count, int key) {
         int name_per_row = 4;
         for (int i = 0; i < matches; i++) {
             if (i > 0 && i % name_per_row == 0) printf("\n");
-            printf("%s\t", words[i]);
+            print_space(words[i]);
         }
         printf("\n");
         for (int i = 0; i < match_cnt; i++) {
@@ -123,11 +140,11 @@ int auto_complete(int count, int key) {
                     if (matches == 2) {
                         // first match was held, print it now
                         printf("\n");
-                        printf("%s\t", first);
+                        print_space(first);
                         cntr++;
                     }
                     if (cntr % 4 == 0) printf("\n");
-                    printf("%s\t", entry->d_name);
+                    print_space(entry->d_name);
                     cntr++;
                 }
             }
