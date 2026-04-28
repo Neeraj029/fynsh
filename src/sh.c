@@ -74,15 +74,13 @@ void print_space(char *fname)
     }
 }
 
-void pipe_cmd_launch(char command[])
-{
-    char *cmds[10][10];
-    char *tkn = strtok(command, " ");
+int split_by(char* command, char* dividend, char *cmds[10][10]){
+        char *tkn = strtok(command, " ");
     int cmd_cnt = 0, arg_cnt = 0;
 
     while (tkn != NULL)
     {
-        if (strcmp(tkn, "|") == 0)
+        if (strcmp(tkn, dividend) == 0)
         {
             cmds[cmd_cnt][arg_cnt] = NULL;
             cmd_cnt++;
@@ -97,6 +95,40 @@ void pipe_cmd_launch(char command[])
     cmds[cmd_cnt][arg_cnt] = NULL;
 
     int n = cmd_cnt + 1;
+    return n;
+} 
+
+int fork_n_wait(char *args[]){
+    pid_t pid;
+    pid = fork();
+    if(pid==0){
+        execvp(args[0],args);
+        perror(args[0]);
+        exit(1);
+    }
+
+    int status;
+    waitpid(pid, &status, 0);
+
+    // Return 0 on success, non-zero on failure
+    return !(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+}   
+
+int and_cmd_launch(char command[]){
+    char *cmds[10][10];
+    int n = split_by(command,"&&",cmds);
+    for(int i = 0;i<n;i++){
+        if(fork_n_wait(cmds[i])){
+            printf("%s failed. exiting\n", cmds[i][0]);
+            return 1;
+        }
+    }
+
+}
+void pipe_cmd_launch(char command[])
+{
+    char *cmds[10][10];
+    int n = split_by(command,"|", cmds);
 
     int (*pids)[2] = malloc((n - 1) * sizeof(int[2]));
     for (int i = 0; i < n - 1; i++)
@@ -281,6 +313,9 @@ int sh_launch(char **args)
     if (strrchr(rl_line_buffer, '|'))
     {
         pipe_cmd_launch(rl_line_buffer);
+        return 1;
+    }else if(strstr(rl_line_buffer, "&&")){
+        and_cmd_launch(rl_line_buffer);
         return 1;
     }
     else
